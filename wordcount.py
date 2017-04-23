@@ -1,5 +1,9 @@
+#!/usr/bin/python
+
+import operator
+import sys
+
 from pyspark import SparkConf, SparkContext
-import sys, operator
 
 inputs = sys.argv[1]
 output = sys.argv[2]
@@ -13,5 +17,5 @@ words = text.flatMap(lambda line: line.split()).map(lambda w: (w, 1))
 
 wordcount = words.reduceByKey(operator.add)
 
-outdata = wordcount.sortBy(lambda (w,c): w).map(lambda (w,c): u"%s %i" % (w, c))
+outdata = wordcount.sortBy(lambda (w, c): w).map(lambda (w, c): u"%s %i" % (w, c))
 outdata.saveAsTextFile(output)
