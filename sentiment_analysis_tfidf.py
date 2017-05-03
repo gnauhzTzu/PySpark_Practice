@@ -38,7 +38,7 @@ testinputs = sys.argv[2]
 def main():
 
     train = spark.read.json(traininputs)
-    train = train.select('overall','reviewText').withColumnRenamed('overall','label')
+    train = train.select('overall','reviewText').withColumnRenamed('label','reviewText')
 
     # include all the funcions below into a pipeline
     step = 0
@@ -55,10 +55,10 @@ def main():
                                 stopWords = StopWordsRemover.loadDefaultStopWords('english'))
 
     step += 1
-    # numFeatures
+    # numFeatures: The number  of the features
     hashingTF = HashingTF(inputCol=remover.getOutputCol(),
                             outputCol=str(step) + "_hashingTF",
-                            numFeatures=10)
+                            numFeatures=2^20)
 
     step += 1
     idf = IDF(inputCol=hashingTF.getOutputCol(),
@@ -78,7 +78,7 @@ def main():
     pipeline = Pipeline(stages=[tokenizer, remover, hashingTF, idf, normalizer, lr])
 
     paramGrid = ParamGridBuilder() \
-        .addGrid(tf.numFeatures, [1, 2, 4, 5, 8]) \
+        .addGrid(tf.numFeatures, [1, 4, 8, 16, 32]) \
         .addGrid(lr.regParam, [0.001, 0.01, 0.1, 1.0]) \
         .build()
 
@@ -98,8 +98,8 @@ def main():
     train.unpersist()
 
     # Evaluate the model on test data
-    test = sqlCt.read.json(testinputs)
-    test= test.select('overall','reviewText').withColumnRenamed('overall','label')
+    test = spark.read.json(testinputs)
+    test = test.select('overall','reviewText').withColumnRenamed('label','reviewText')
     test = tokenizer.transform(test)
     test = remover.transform(test)
     test.cache()

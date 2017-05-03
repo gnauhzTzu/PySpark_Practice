@@ -9,9 +9,9 @@ Sentiment analysis on amazon reviews - part 2
 2. Compute Word2Vec vectors for each review.
    Word2vec, an algorithm which converts a collection of words into a dictionary
    of multidimensional numerical representations
-4. Build a linear regression model for the ratings using the training dataset.
-6. Use cross validation and grid search to find the best model
-7. Report the RMSE error on the training and test datasets
+3. Build a linear regression model for the ratings using the training dataset.
+4. Use cross validation and grid search to find the best model
+5. Report the RMSE error on the training and test datasets
 
 how to run:
 /usr/spark2.0.1/bin/spark-submit --master yarn --deploy-mdde client sentiment_analysis_word2vec.py /path/to/input
@@ -55,7 +55,8 @@ def main():
     step += 1
     word2vec = Word2Vec(inputCol=remover.getOutputCol(),
                         outputCol=str(step) + "_word2vec",
-                        vectorSize=100,
+                        vectorSize=300,
+                        seed=42,
                         minCount=2)
 
     step += 1
